@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-light fixed-top" th:fragment="header-admin">
+  <div class="container">
+    <a class="navbar-brand" th:href="@{/admin/dashboard}" style="font-weight: 700; color: #DC3545 !important;">
+      <i class="fas fa-tools"></i>
+      ADMIN PANEL
+    </a>
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAdmin">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarNavAdmin">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/}">
+            <i class="fas fa-arrow-left me-1"></i> Trang công khai
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" th:href="@{/admin/moderation}">Duyệt bài</a>
+        </li>
+      </ul>
+
+      <div class="dropdown" sec:authorize="isAuthenticated()">
+        <button class="btn btn-outline-danger dropdown-toggle" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false">
+          <i class="fas fa-user-cog"></i>
+          <span sec:authentication="name">Admin</span>
+        </button>
+        <ul class="dropdown-menu">
+          <li><a class="dropdown-item" th:href="@{/profile}">
+            <i class="fas fa-user me-2"></i>Hồ sơ
+          </a></li>
+          <li><hr class="dropdown-divider"></li>
+          <li>
+            <form th:action="@{/auth/logout}" method="post" class="dropdown-item p-0">
+              <button type="submit" class="btn btn-link text-danger w-100 text-start"
+                      style="text-decoration: none;">
+                <i class="fas fa-sign-out-alt me-2"></i>Đăng xuất
+              </button>
+            </form>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</nav>
+
+</body>
+</html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+
+      layout:decorate="~{layouts/default_layout}">
+<head>
+  <title>Đăng nhập</title>
+</head>
+<body>
+
+<th:block layout:fragment="content">
+
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-6 col-lg-4">
+
+        <div class="login-header">
+          <h2><i class="fas fa-sign-in-alt me-2"></i>Đăng nhập</h2>
+          <p class="mb-0">Chào mừng trở lại!</p>
+        </div>
+
+        <div class="login-container">
+
+          <div th:if="${param.error}" class="alert alert-danger" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            <span>Tên đăng nhập hoặc mật khẩu không chính xác.</span>
+          </div>
+
+          <div th:if="${param.logout}" class="alert alert-success" role="alert">
+            <i class="fas fa-check-circle me-2"></i>
+            <span>Bạn đã đăng xuất thành công.</span>
+          </div>
+
+          <div th:if="${message}" class="alert alert-success" role="alert">
+            <i class="fas fa-check-circle me-2"></i>
+            <span th:text="${message}"></span>
+          </div>
+
+          <form method="POST" th:action="@{/auth/login}">
+            <div class="mb-3">
+              <label for="username" class="form-label">Tên đăng nhập</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-user"></i></span>
+                <input type="text" class="form-control" id="username"
+                       name="username" required placeholder="Nhập tên đăng nhập">
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="password" class="form-label">Mật khẩu</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                <input type="password" class="form-control" id="password"
+                       name="password" required placeholder="Nhập mật khẩu">
+              </div>
+            </div>
+
+            <div class="mb-3 form-check">
+              <input type="checkbox" class="form-check-input" id="remember" name="remember-me">
+              <label class="form-check-label" for="remember">
+                Ghi nhớ đăng nhập
+              </label>
+            </div>
+
+            <div class="d-grid">
+              <button type="submit" class="btn btn-primary btn-lg">
+                <i class="fas fa-sign-in-alt"></i> Đăng nhập
+              </button>
+            </div>
+          </form>
+
+          <hr class="my-4">
+
+          <div class="text-center">
+            <p class="mb-2">Chưa có tài khoản?</p>
+            <a th:href="@{/auth/register}" class="btn btn-outline-success">
+              <i class="fas fa-user-plus"></i> Đăng ký ngay
+            </a>
+          </div>
+
+          <div class="text-center mt-3">
+            <a th:href="@{/}" class="text-muted">
+              <i class="fas fa-arrow-left"></i> Về trang chủ
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</th:block>
+
+</body>
+</html>

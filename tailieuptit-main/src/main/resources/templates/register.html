@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/default_layout}"> <head>
+  <title>Đăng ký tài khoản</title>
+</head>
+<body>
+
+<th:block layout:fragment="content">
+
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-8 col-lg-6">
+
+        <div class="register-header">
+          <h2><i class="fas fa-user-plus me-2"></i>Đăng ký tài khoản</h2>
+          <p class="mb-0">Tham gia cộng đồng chia sẻ tài liệu PTIT</p>
+        </div>
+
+        <div class="register-container">
+
+          <div id="alert-success" class="alert alert-success" role="alert" style="display: none;">
+          </div>
+          <div id="alert-error" class="alert alert-danger" role="alert" style="display: none;">
+          </div>
+
+          <form id="register-form">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="username" class="form-label">Tên đăng nhập *</label>
+                <div class="input-group">
+                  <span class="input-group-text"><i class="fas fa-user"></i></span>
+                  <input type="text" class="form-control" id="username"
+                         name="username" required minlength="3"
+                         placeholder="Nhập tên đăng nhập">
+                </div>
+                <div class="form-text">Ít nhất 3 ký tự</div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="fullName" class="form-label">Tên hiển thị *</label>
+                <div class="input-group">
+                  <span class="input-group-text"><i class="fas fa-id-card"></i></span>
+                  <input type="text" class="form-control" id="fullName"
+                         name="fullName" required placeholder="Nguyễn Văn A">
+                </div>
+                <div class="form-text">Ít nhất 3 ký tự</div>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label for="email" class="form-label">Email *</label>
+                <div class="input-group">
+                  <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                  <input type="email" class="form-control" id="email"
+                         name="email" required placeholder="example@ptit.edu.vn">
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="password" class="form-label">Mật khẩu *</label>
+                <div class="input-group">
+                  <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                  <input type="password" class="form-control" id="password"
+                         name="password" required minlength="6"
+                         placeholder="Nhập mật khẩu">
+                </div>
+                <div class="form-text">Ít nhất 6 ký tự</div>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label for="confirmPassword" class="form-label">Xác nhận mật khẩu *</label>
+                <div class="input-group">
+                  <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                  <input type="password" class="form-control" id="confirmPassword"
+                         name="confirmPassword" required placeholder="Nhập lại mật khẩu">
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-3 form-check">
+              <input type="checkbox" class="form-check-input" id="agreement" required>
+              <label class="form-check-label" for="agreement">
+                Tôi đồng ý với điều khoản sử dụng
+              </label>
+            </div>
+
+            <div class="d-grid">
+              <button type="submit" class="btn btn-success btn-lg">
+                <i class="fas fa-user-plus"></i> Đăng ký
+              </button>
+            </div>
+          </form>
+
+          <hr class="my-4">
+
+          <div class="text-center">
+            <p class="mb-2">Đã có tài khoản?</p>
+            <a th:href="@{/auth/login}" class="btn btn-outline-primary">
+              <i class="fas fa-sign-in-alt"></i> Đăng nhập ngay
+            </a>
+          </div>
+
+          <div class="text-center mt-3">
+            <a th:href="@{/}" class="text-muted">
+              <i class="fas fa-arrow-left"></i> Về trang chủ
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</th:block>
+
+<th:block layout:fragment="scripts">
+  <script>
+    // --- (Code xác nhận mật khẩu của bạn - Giữ nguyên) ---
+    const passwordField = document.getElementById('password');
+    const confirmPasswordField = document.getElementById('confirmPassword');
+
+    confirmPasswordField.addEventListener('input', function() {
+      if (passwordField.value !== this.value) {
+        this.setCustomValidity('Mật khẩu xác nhận không khớp');
+      } else {
+        this.setCustomValidity('');
+      }
+    });
+
+    passwordField.addEventListener('input', function() {
+      if (confirmPasswordField.value) {
+        confirmPasswordField.dispatchEvent(new Event('input'));
+      }
+    });
+
+    // --- CẢI TIẾN: Bắt sự kiện Submit Form bằng JavaScript ---
+
+    const registerForm = document.getElementById('register-form');
+    const alertSuccess = document.getElementById('alert-success');
+    const alertError = document.getElementById('alert-error');
+
+    registerForm.addEventListener('submit', function(event) {
+      // Ngăn form submit theo cách truyền thống
+      event.preventDefault();
+
+      // Ẩn thông báo cũ
+      alertSuccess.style.display = 'none';
+      alertError.style.display = 'none';
+
+      // Lấy dữ liệu (khớp với RegisterRequest DTO)
+      const data = {
+        username: document.getElementById('username').value,
+        email: document.getElementById('email').value,
+        password: document.getElementById('password').value,
+        fullName: document.getElementById('fullName').value
+      };
+
+      // GỌI ĐÚNG API: POST /api/auth/register
+      fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          // (Thêm CSRF token header nếu bạn bật)
+        },
+        body: JSON.stringify(data)
+      })
+              .then(response => {
+                // Chuyển phản hồi thành JSON
+                // và kiểm tra xem response có 'ok' (status 2xx) hay không
+                return response.json().then(body => ({
+                  ok: response.ok,
+                  body: body
+                }));
+              })
+              .then(({ ok, body }) => {
+                if (ok) {
+                  // THÀNH CÔNG (HTTP 201 Created)
+                  alertSuccess.innerHTML = '<i class="fas fa-check-circle me-2"></i> Đăng ký thành công! Đang chuyển đến trang đăng nhập...';
+                  alertSuccess.style.display = 'block';
+
+                  // Chuyển hướng sang trang đăng nhập sau 1 giây
+                  setTimeout(() => {
+                    window.location.href = '/auth/login';
+                  }, 1000);
+
+                } else {
+                  // THẤT BẠI (HTTP 400 Bad Request)
+                  // 'body' lúc này là MessageResponse (chỉ có 'message')
+                  // hoặc là String (nếu UserService ném lỗi Exception)
+                  const errorMessage = typeof body === 'string' ? body : (body.message || 'Lỗi không xác định');
+
+                  alertError.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i> ' + errorMessage;
+                  alertError.style.display = 'block';
+                }
+              })
+              .catch(error => {
+                console.error('Lỗi Fetch:', error);
+                alertError.innerHTML = '<i class="fas fa-exclamation-circle me-2"></i> Lỗi kết nối máy chủ.';
+                alertError.style.display = 'block';
+              });
+    });
+  </script>
+</th:block>
+
+</body>
+</html>

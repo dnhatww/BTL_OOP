@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/admin_layout}">
+<head>
+  <title>Duyệt Tài liệu</title>
+</head>
+<body>
+
+<th:block layout:fragment="content">
+
+  <div id="alert-success" class="alert alert-success" style="display: none;"></div>
+  <div id="alert-error" class="alert alert-danger" style="display: none;"></div>
+
+  <div class="card admin-card p-4">
+    <h5 class="section-title mb-4">Danh sách Tài liệu chờ duyệt</h5>
+
+    <div th:if="${pendingDocuments.hasContent()}" class="table-responsive">
+      <table class="table table-hover align-middle">
+        <thead class="table-dark">
+        <tr>
+          <th>ID</th>
+          <th>Tiêu đề</th>
+          <th>Người gửi</th>
+          <th>Ngày gửi</th>
+          <th>Hành động</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="doc : ${pendingDocuments.content}">
+          <td th:text="${doc.id}">1</td>
+          <td>
+            <a th:href="@{/document/{id}(id=${doc.id})}" target="_blank" th:text="${doc.title}">Document Title</a>
+            <br><small class="text-muted" th:text="${'Thể loại: ' + doc.categoryName}">Category</small>
+          </td>
+          <td th:text="${doc.authorFullName}">Uploader Name</td>
+          <td th:text="${#dates.format(doc.createdAt, 'dd/MM/yyyy')}">01/01/2025</td>
+          <td>
+            <button class="btn btn-success btn-sm me-2"
+                    th:data-id="${doc.id}"
+                    onclick="moderateDocument(this.getAttribute('data-id'), 'approve')">
+              <i class="fas fa-check"></i> Duyệt
+            </button>
+
+            <button class="btn btn-danger btn-sm"
+                    th:data-id="${doc.id}"
+                    onclick="moderateDocument(this.getAttribute('data-id'), 'reject')">
+              <i class="fas fa-times"></i> Từ chối
+            </button>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div th:unless="${pendingDocuments.hasContent()}" class="alert alert-info text-center mb-0">
+      <i class="fas fa-info-circle me-2"></i> Không có tài liệu nào chờ duyệt.
+    </div>
+  </div>
+  </th-block>
+
+  <th-block layout:fragment="scripts">
+    <script>
+      // Hàm xử lý duyệt bài (Approve/Reject)
+      function moderateDocument(docId, action) {
+        if (!confirm(`Bạn có chắc chắn muốn ${action === 'approve' ? 'DUYỆT' : 'TỪ CHỐI'} tài liệu ID ${docId} không?`)) {
+          return;
+        }
+
+        // GỌI ĐÚNG API: POST /api/admin/documents/{id}/approve hoặc /reject
+        fetch(`/api/admin/documents/${docId}/${action}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            // (Thêm CSRF token nếu bật)
+          }
+        })
+                .then(response => {
+                  if (response.ok) {
+                    alert('Thao tác thành công!');
+                    window.location.reload(); // Tải lại trang để cập nhật danh sách
+                  } else {
+                    response.json().then(data => alert('Lỗi: ' + (data.message || 'Lỗi server.')));
+                  }
+                })
+                .catch(error => {
+                  console.error('Lỗi duyệt bài:', error);
+                  alert('Lỗi kết nối máy chủ.');
+                });
+      }
+    </script>
+  </th-block>
+
+</body>
+</html>

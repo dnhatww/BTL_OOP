@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      layout:decorate="~{layouts/default_layout}">
+
+<head>
+    <title>Trang chủ</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        /* --- HERO SECTION MÀU TÍM CŨ --- */
+        .hero-hust {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            padding: 100px 20px;
+            text-align: center;
+            color: white;
+        }
+
+        .hero-title {
+            font-size: 60px;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+
+        .hero-desc {
+            font-size: 18px;
+            max-width: 900px;
+            margin: 15px auto 40px auto;
+            line-height: 1.6;
+            opacity: 0.95;
+        }
+
+        .search-box {
+            max-width: 700px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-box input {
+            height: 55px;
+            border-radius: 10px 0 0 10px;
+            padding-left: 20px;
+            font-size: 17px;
+            border: none;
+        }
+
+        .search-box button {
+            height: 55px;
+            border-radius: 0 10px 10px 0;
+            background: #ffffff;
+            border: none;
+            padding: 0 25px;
+        }
+
+        .search-box button i {
+            font-size: 22px;
+            color: #333;
+        }
+    </style>
+</head>
+
+<body>
+
+<th:block layout:fragment="content">
+
+    <section class="hero-hust">
+        <h1 class="hero-title">TÀI LIỆU PTIT</h1>
+
+        <p class="hero-desc">
+            Tài liệu PTIT cung cấp tài liệu đại cương và chuyên ngành hoàn toàn miễn phí cho sinh viên.
+            <br>
+            Ngoài ra website còn chia sẻ tài liệu ngoại ngữ và nhiều học liệu phục vụ học tập hiệu quả.
+        </p>
+
+        <form method="GET" th:action="@{/search}">
+            <div class="search-box">
+                <input type="text"
+                       class="form-control"
+                       name="q"
+                       th:value="${searchQuery}"
+                       placeholder="TÌM TÀI LIỆU">
+
+                <button type="submit">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+        </form>
+    </section>
+
+    <main class="main-content">
+        <div class="container">
+
+            <section class="mt-5">
+                <h2 class="section-title">
+                    <i class="fas fa-file-alt"></i>
+                    <span th:text="${pageTitle} ?: 'Tài Liệu Mới Nhất'">Tài Liệu Mới Nhất</span>
+                </h2>
+
+                <div class="row g-4" th:if="${documents != null and documents.hasContent()}">
+                    <div class="col-lg-4 col-md-6" th:each="doc : ${documents.content}">
+                        <div class="card document-card">
+
+                            <!-- Header icon -->
+                            <div class="document-header header-pdf" th:if="${doc.mimeType == 'application/pdf'}">
+                                <i class="fas fa-file-pdf"></i>
+                            </div>
+
+                            <div class="card-body">
+                                <h5 class="card-title" th:text="${doc.title}">Document Title</h5>
+
+                                <div class="text-muted mb-2">
+                                    <small>
+                                        <i class="fas fa-user"></i>
+                                        <span th:text="${doc.authorFullName} ?: 'Anonymous'"></span> |
+                                        <i class="fas fa-tag"></i>
+                                        <span th:text="${doc.categoryName}"></span>
+                                    </small>
+                                </div>
+
+                                <div class="d-flex justify-content-between text-black-50 mb-3">
+                                    <div><i class="fas fa-eye"></i> <small th:text="${doc.viewsCount}"></small></div>
+                                    <div><i class="fas fa-download"></i> <small th:text="${doc.downloadCount}"></small></div>
+                                    <div><i class="fas fa-comment"></i> <small th:text="${doc.commentsCount}"></small></div>
+                                </div>
+
+                                <a th:href="@{/api/documents/download/{id}(id=${doc.id})}" class="btn btn-success btn-sm w-100 mb-2">
+                                    <i class="fas fa-download"></i> Tải về
+                                </a>
+                                <a th:href="@{/document/{id}(id=${doc.id})}" class="btn btn-info btn-sm w-100">
+                                    <i class="fas fa-eye"></i> Xem
+                                </a>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+
+        </div>
+    </main>
+
+</th:block>
+
+</body>
+</html>

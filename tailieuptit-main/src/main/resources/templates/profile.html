@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+
+      layout:decorate="~{layouts/default_layout}">
+<head>
+    <title th:text="${user.username}">Thông tin cá nhân</title>
+</head>
+<body>
+
+<th:block layout:fragment="content">
+
+    <div class="container">
+
+        <div class="profile-header">
+            <div class="profile-avatar">
+                <i class="fas fa-user"></i>
+            </div>
+            <h2 th:text="${user.fullName}">Tên Hiển Thị</h2>
+            <p class="mb-0" th:text="'@' + ${user.username} + ' | ' + ${user.email}">@username | Email</p>
+            <small>
+                Thành viên từ: <span th:text="${#dates.format(user.createdAt, 'dd/MM/yyyy')}"></span>
+            </small>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4">
+                <div class="profile-container">
+                    <h5 class="mb-3"><i class="fas fa-chart-bar me-2 text-primary"></i>Thống kê</h5>
+
+                    <div class="stats-card">
+                        <h3 th:text="${userDocuments.totalElements ?: 0}">0</h3>
+                        <p class="mb-0">Tài liệu đã chia sẻ</p>
+                    </div>
+
+                    <div class="stats-card" style="background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);">
+                        <h3 th:text="${userComments.totalElements ?: 0}">0</h3>
+                        <p class="mb-0">Bình luận</p>
+                    </div>
+
+                    <div class="text-center mt-3">
+                        <a th:href="@{/document/upload}" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Thêm tài liệu mới
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-8">
+                <div class="profile-container">
+                    <h5 class="mb-3">
+                        <i class="fas fa-file-alt me-2 text-primary"></i>
+                        Tài liệu của tôi (<span th:text="${userDocuments.totalElements ?: 0}">0</span>)
+                    </h5>
+
+                    <div th:if="${userDocuments != null and userDocuments.hasContent()}">
+                        <div class="document-item" th:each="doc : ${userDocuments.content}">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-2">
+                                        <a th:if="${doc.status == T(com.tailieuptit.demo.entity.DocumentStatus).APPROVED}"
+                                           th:href="@{/document/{id}(id=${doc.id})}"
+                                           class="text-decoration-none"
+                                           th:text="${doc.title}">
+                                            Document Title
+                                        </a>
+                                        <a th:unless="${doc.status == T(com.tailieuptit.demo.entity.DocumentStatus).APPROVED}"
+                                           href="" class="text-decoration-none"
+                                           th:text="${doc.title}">
+                                            Document Title
+                                        </a>
+                                    </h6>
+                                    <small class="text-muted d-block mb-2"> <i class="fas fa-tag me-1"></i>
+                                        <span th:text="${doc.categoryName} ?: 'Khác'">Category</span>
+                                        | <i class="fas fa-clock me-1"></i>
+                                        <span th:text="${#dates.format(doc.createdAt, 'dd/MM/yyyy')}">dd/MM/yyyy</span>
+                                    </small>
+
+                                    <div class="d-flex gap-3 text-black-50 mb-2">
+                                        <div title="Lượt xem" class="d-flex align-items-center">
+                                            <i class="fas fa-eye me-1" style="font-size: 0.8rem;"></i>
+                                            <small th:text="${doc.viewsCount}">0</small>
+                                        </div>
+                                        <div title="Lượt tải" class="d-flex align-items-center">
+                                            <i class="fas fa-download me-1" style="font-size: 0.8rem;"></i>
+                                            <small th:text="${doc.downloadCount}">0</small>
+                                        </div>
+                                        <div title="Đánh giá" class="d-flex align-items-center">
+                                            <i class="fas fa-star me-1" style="color: #ffc107; font-size: 0.8rem;"></i>
+                                            <small th:text="${doc.averageRating}">0.0</small>
+                                        </div>
+                                        <div title="Bình luận" class="d-flex align-items-center">
+                                            <i class="fas fa-comment me-1" style="font-size: 0.8rem;"></i>
+                                            <small th:text="${doc.commentsCount}">0</small>
+                                        </div>
+                                    </div>
+                                    <div class = "mt-2">
+                                        <span th:if="${doc.status == T(com.tailieuptit.demo.entity.DocumentStatus).APPROVED}"
+                                              class="badge bg-success">APPROVED</span>
+                                        <span th:if="${doc.status == T(com.tailieuptit.demo.entity.DocumentStatus).PENDING}"
+                                              class="badge bg-warning text-dark">PENDING</span>
+                                        <span th:if="${doc.status == T(com.tailieuptit.demo.entity.DocumentStatus).REJECTED}"
+                                              class="badge bg-danger">REJECTED</span>
+                                    </div>
+                                </div>
+
+                                <div class="ms-3">
+                                    <a th:if="${doc.status == T(com.tailieuptit.demo.entity.DocumentStatus).APPROVED}"
+                                       th:href="@{/document/{id}(id=${doc.id})}" class="btn btn-sm btn-outline-primary me-2">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a th:unless="${doc.status == T(com.tailieuptit.demo.entity.DocumentStatus).APPROVED}"
+                                       href="" class="btn btn-sm btn-outline-primary me-2">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a th:if="${doc.status == T(com.tailieuptit.demo.entity.DocumentStatus).APPROVED}"
+                                       th:href="@{/api/documents/download/{id}(id=${doc.id})}" class="btn btn-sm btn-success me-2">
+                                        <i class="fas fa-download"></i>
+                                    </a>
+                                    <a th:unless="${doc.status == T(com.tailieuptit.demo.entity.DocumentStatus).APPROVED}"
+                                       href="" class="btn btn-sm btn-success me-2">
+                                        <i class="fas fa-download"></i>
+                                    </a>
+                                    <button sec:authorize="hasRole('ADMIN')" ... >
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div th:if="${userDocuments == null or not userDocuments.hasContent()}"
+                         class="text-center py-4">
+                    </div>
+                </div>
+
+                <div class="profile-container mt-4">
+                    <h5 class="mb-3">
+                        <i class="fas fa-comments me-2 text-primary"></i>
+                        Bình luận gần đây (<span th:text="${userComments.totalElements ?: 0}">0</span>)
+                    </h5>
+
+                    <div th:if="${userComments != null and userComments.hasContent()}">
+                        <th:block th:each="comment : ${userComments.content}">
+                            <div class="comment-item">
+                                <p class="mb-2" th:text="${comment.content}">Comment content</p>
+                                <small class="text-muted">
+                                    Bình luận trong:
+                                    <a th:href="@{/document/{id}(id=${comment.documentId})}"
+                                       class="text-decoration-none" th:text="${comment.documentTitle}">Document</a>
+                                </small>
+                            </div>
+                        </th:block>
+                    </div>
+
+                    <div th:if="${userComments == null or not userComments.hasContent()}"
+                         class="text-center py-4">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</th:block>
+
+<th:block layout:fragment="scripts">
+    <script sec:authorize="hasRole('ADMIN')" th:inline="javascript">
+        function confirmDelete(documentId, documentTitle) {
+            if (confirm('Xác nhận xóa tài liệu "' + documentTitle + '"?')) {
+
+                // Lấy CSRF token (nếu bạn bật)
+                // const token = document.querySelector('meta[name="_csrf"]');
+                // const headers = { 'X-CSRF-TOKEN': token.content };
+
+                // GỌI ĐÚNG API: DELETE /api/admin/documents/{id}
+                fetch('/api/admin/documents/' + documentId, {
+                    method: 'DELETE',
+                    // headers: headers
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            alert('Xóa thành công!');
+                            window.location.reload(); // Tải lại trang profile
+                        } else {
+                            response.json().then(data => alert('Lỗi: ' + (data.message || 'Không thể xóa')));
+                        }
+                    })
+                    .catch(error => alert('Đã xảy ra lỗi hệ thống.'));
+            }
+        }
+    </script>
+</th:block>
+
+</body>
+</html>

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+
+      layout:decorate="~{layouts/default_layout}">
+<head>
+    <title>Upload Tài Liệu</title>
+</head>
+<body>
+
+<th:block layout:fragment="content">
+
+    <div class="container">
+
+        <div class="upload-header">
+            <h2><i class="fas fa-cloud-upload-alt"></i> Upload Tài Liệu</h2>
+            <p>Chia sẻ tài liệu học tập với cộng đồng sinh viên PTIT</p>
+        </div>
+
+        <div class="upload-container">
+
+            <div sec:authorize="isAnonymous()" class="alert alert-warning" role="alert">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <strong>Yêu cầu đăng nhập:</strong> Vui lòng
+                <a th:href="@{/auth/login}" class="alert-link">đăng nhập</a>
+                để upload tài liệu.
+            </div>
+
+            <div sec:authorize="isAuthenticated()">
+
+                <div id="alert-success" class="alert alert-success" role="alert" style="display: none;"></div>
+                <div id="alert-error" class="alert alert-danger" role="alert" style="display: none;"></div>
+
+                <form id="upload-form">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="title" class="form-label">Tiêu đề tài liệu *</label>
+                            <input type="text" class="form-control" id="title" name="title" required>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label for="categoryId" class="form-label">Danh mục *</label>
+                            <select class="form-select" id="categoryId" name="categoryId" required>
+                                <option value="" disabled selected>-- Chọn một danh mục --</option>
+                                <option th:each="cat : ${categories}"
+                                        th:value="${cat.id}"
+                                        th:text="${cat.name}">
+                                    Category Name
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Mô tả</label>
+                        <textarea class="form-control" id="description" name="description"
+                                  rows="4" placeholder="Mô tả ngắn về tài liệu"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="file" class="form-label">Chọn file *</label>
+                        <input type="file" class="form-control" id="file" name="file" required
+                               accept=".pdf, .doc, .docx, .xls, .xlsx, .ppt, .pptx, .txt,
+                                 application/pdf,
+                                 application/msword,
+                                 application/vnd.openxmlformats-officedocument.wordprocessingml.document,
+                                 application/vnd.ms-excel,
+                                 application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,
+                                 application/vnd.ms-powerpoint,
+                                 application/vnd.openxmlformats-officedocument.presentationml.presentation,
+                                 text/plain">
+                        <div class="form-text">
+                            Hỗ trợ: PDF, Word, Excel, PowerPoint, TXT (Tối đa 10MB)
+                        </div>
+                    </div>
+
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-primary btn-lg me-3">
+                            <i class="fas fa-upload"></i> Upload Tài Liệu
+                        </button>
+                        <a th:href="@{/}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> Quay lại
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</th:block>
+
+<th:block layout:fragment="scripts">
+    <script sec:authorize="isAuthenticated()">
+
+        // --- (Helper hiển thị thông báo) ---
+        const alertSuccess = document.getElementById('alert-success');
+        const alertError = document.getElementById('alert-error');
+
+        function showAlert(type, message) {
+            const alertBox = (type === 'success') ? alertSuccess : alertError;
+            alertBox.innerHTML = '<i class="fas fa-check-circle me-2"></i> ' + message +
+                '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
+            alertBox.style.display = 'block';
+        }
+
+        function hideAlerts() {
+            alertSuccess.style.display = 'none';
+            alertError.style.display = 'none';
+        }
+
+        // --- Bắt sự kiện Submit Form bằng JavaScript ---
+        const ALLOWED_MIME_TYPES = [
+            'application/pdf',
+            'application/msword', // .doc
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // .docx
+            'application/vnd.ms-excel', // .xls
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
+            'application/vnd.ms-powerpoint', // .ppt
+            'application/vnd.openxmlformats-officedocument.presentationml.presentation', // .pptx
+            'text/plain' // .txt
+        ];
+        const uploadForm = document.getElementById('upload-form');
+        uploadForm.addEventListener('submit', function (event) {
+            event.preventDefault(); // Ngăn submit truyền thống
+            hideAlerts();
+
+            const fileInput = document.getElementById('file');
+            const file = fileInput.files[0];
+
+            // Lấy các trường dữ liệu
+            const title = document.getElementById('title').value;
+            const description = document.getElementById('description').value;
+            const categoryId = document.getElementById('categoryId').value;
+
+            // Kiểm tra file
+            if (!file) {
+                showAlert('error', 'Vui lòng chọn một file để upload.');
+                return;
+            }
+            const fileType = file.type;
+            if (!ALLOWED_MIME_TYPES.includes(fileType)) {
+                showAlert('error', 'Loại file không hợp lệ. Chỉ chấp nhận (PDF, Word, Excel, PowerPoint, TXT).');
+                return;
+            }
+            if (file.size > 10 * 1024 * 1024) { // 10MB (Khớp với application.properties)
+                showAlert('error', 'File quá lớn. Kích thước tối đa là 10MB.');
+                return;
+            }
+
+            // Tạo đối tượng FormData để gửi file
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('title', title);
+            formData.append('description', description);
+            formData.append('categoryId', categoryId);
+
+            // Vô hiệu hóa nút submit để tránh bấm đúp
+            const submitButton = uploadForm.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Đang tải lên...';
+
+            // GỌI ĐÚNG API: POST /api/documents/upload
+            fetch('/api/documents/upload', {
+                method: 'POST',
+                // Không cần 'Content-Type' khi dùng FormData, trình duyệt tự set
+                body: formData,
+                headers: {
+                    // (Thêm CSRF token header nếu bạn bật)
+                }
+            })
+                .then(response => response.json().then(data => ({ok: response.ok, body: data})))
+                .then(({ok, body}) => {
+                    if (ok) {
+                        // THÀNH CÔNG (HTTP 201 Created)
+                        showAlert('success', body.message || 'Upload thành công! Tài liệu đang chờ duyệt.');
+                        uploadForm.reset(); // Xóa các trường trong form
+                    } else {
+                        // THẤT BẠI (HTTP 400/401/500)
+                        showAlert('error', 'Lỗi: ' + (body.message || 'Không thể upload file'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Lỗi Fetch Upload:', error);
+                    showAlert('error', 'Lỗi kết nối máy chủ.');
+                })
+                .finally(() => {
+                    // Kích hoạt lại nút submit
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = '<i class="fas fa-upload"></i> Upload Tài Liệu';
+                });
+        });
+
+
+
+    </script>
+</th:block>
+
+</body>
+</html>

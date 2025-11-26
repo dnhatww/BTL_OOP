@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+
+      layout:decorate="~{layouts/default_layout}">
+<head>
+    <title th:text="${document.title}">Chi tiết tài liệu</title>
+</head>
+<body>
+
+<th:block layout:fragment="content">
+
+    <div class="container">
+        <div id="alert-success" class="alert alert-success alert-dismissible fade show" role="alert" style="display: none;"></div>
+        <div id="alert-error" class="alert alert-danger alert-dismissible fade show" role="alert" style="display: none;"></div>
+
+        <div th:if="${error}" class="alert alert-danger" role="alert" th:text="${error}"></div>
+
+        <div class="content-container">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">
+                        <i class="fas fa-file-alt me-2"></i>
+                        <span th:text="${document.title}">Document Title</span>
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <strong><i class="fas fa-user me-2"></i>Người upload:</strong>
+                            <span th:text="${document.authorFullName}">Username</span>
+                        </div>
+                        <div class="col-md-6">
+                            <strong><i class="fas fa-tag me-2"></i>Danh mục:</strong>
+                            <span th:text="${document.categoryName}">Category</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <strong><i class="fas fa-info-circle me-2"></i>Mô tả:</strong>
+                        <p th:text="${document.description}" class="mt-2">Description</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <strong><i class="fas fa-file me-2"></i>Loại file:</strong>
+                        <span th:text="${document.mimeType}">File type</span>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <a th:href="@{/api/documents/download/{id}(id=${document.id})}"
+                           class="btn btn-success">
+                            <i class="fas fa-download"></i> Tải về
+                        </a>
+
+
+                        <button sec:authorize="hasRole('ADMIN')" class="btn btn-danger"
+                                th:onclick="confirmDelete([[${document.id}]], '[[${document.title}]]')">
+                            <i class="fas fa-trash"></i> Xóa
+                        </button>
+
+                        <a th:href="@{/}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Về trang chủ
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-container">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">
+                        <i class="fas fa-comments me-2"></i>
+                        Bình luận (<span th:text="${document.commentsCount}">0</span>)
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div sec:authorize="isAuthenticated()">
+                        <form id="comment-form" th:data-doc-id="${document.id}">
+                            <div class="mb-3">
+                                <textarea class="form-control" id="comment-content" name="content" rows="3"
+                                          placeholder="Viết bình luận của bạn..." required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-comment"></i> Gửi bình luận
+                            </button>
+                        </form>
+                    </div>
+
+                    <div sec:authorize="isAnonymous()" class="alert alert-info mb-4">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <a th:href="@{/auth/login}" class="alert-link">Đăng nhập</a> để thêm bình luận
+                    </div>
+
+                    <div class="mt-4">
+                        <div th:if="${document.comments != null and not #lists.isEmpty(document.comments)}">
+                            <div class="comment" th:each="comment : ${document.comments}">
+                                <strong><i class="fas fa-user-circle me-1"></i> <span th:text="${comment.fullName}">FullName</span></strong>
+                                <p th:text="${comment.content}" class="mb-1">Comment content</p>
+                            </div>
+                        </div>
+
+                        <div th:if="${document.comments == null or #lists.isEmpty(document.comments)}"
+                             class="text-center text-muted py-4">
+                            <i class="fas fa-comment-slash fa-2x mb-3"></i>
+                            <p>Chưa có bình luận nào. Hãy là người đầu tiên!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</th:block>
+
+<th:block layout:fragment="scripts">
+    <script th:inline="javascript">
+
+        // --- (Hàm Helper để hiển thị thông báo) ---
+        const alertSuccess = document.getElementById('alert-success');
+        const alertError = document.getElementById('alert-error');
+
+        function showAlert(type, message) {
+            const alertBox = (type === 'success') ? alertSuccess : alertError;
+            alertBox.innerHTML = message + '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
+            alertBox.style.display = 'block';
+        }
+
+        // --- CẢI TIẾN: Script Xóa (Chỉ Admin) ---
+        function confirmDelete(documentId, documentTitle) {
+            if (confirm('Xác nhận xóa tài liệu "' + documentTitle + '"?\n\nHành động này không thể hoàn tác!')) {
+
+                // Lấy CSRF token (nếu bạn bật)
+                // const token = document.querySelector('meta[name="_csrf"]');
+                // const headers = { 'X-CSRF-TOKEN': token.content };
+
+                // GỌI ĐÚNG API: DELETE /api/admin/documents/{id}
+                fetch('/api/admin/documents/' + documentId, {
+                    method: 'DELETE',
+                    // headers: headers
+                })
+                    .then(response => response.json().then(data => ({ ok: response.ok, body: data })))
+                    .then(({ ok, body }) => {
+                        if (ok) {
+                            alert('Xóa thành công! Đang quay về trang chủ.');
+                            window.location.href = '/'; // Chuyển về trang chủ
+                        } else {
+                            showAlert('error', 'Lỗi: ' + (body.message || 'Không thể xóa'));
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Lỗi khi gọi API xóa:', error);
+                        showAlert('error', 'Đã xảy ra lỗi hệ thống.');
+                    });
+            }
+        }
+
+        // --- CẢI TIẾN: Script Gửi Bình luận (Chỉ User đã đăng nhập) ---
+        const commentForm = document.getElementById('comment-form');
+
+        // Chỉ thêm listener nếu form tồn tại (tức là user đã đăng nhập)
+        if (commentForm) {
+            commentForm.addEventListener('submit', function(event) {
+                event.preventDefault(); // Ngăn form submit
+
+                const docId = this.getAttribute('data-doc-id');
+                const contentField = document.getElementById('comment-content');
+                const content = contentField.value;
+
+                if (!content.trim()) {
+                    showAlert('error', 'Vui lòng nhập nội dung bình luận.');
+                    return;
+                }
+
+                const data = { content: content }; // Khớp với CommentRequestDTO
+
+                // GỌI ĐÚNG API: POST /api/documents/{id}/comment
+                fetch('/api/documents/' + docId + '/comment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        // (Thêm CSRF token header nếu bạn bật)
+                    },
+                    body: JSON.stringify(data)
+                })
+                    .then(response => response.json().then(data => ({ ok: response.ok, body: data })))
+                    .then(({ ok, body }) => {
+                        if (ok) {
+                            // Thành công!
+                            showAlert('success', body.message || 'Bình luận thành công!');
+                            contentField.value = ''; // Xóa nội dung textarea
+                            // (TùY CHỌN: Tải lại trang để xem comment mới)
+                            setTimeout(() => window.location.reload(), 1500);
+                        } else {
+                            // Thất bại
+                            showAlert('error', 'Lỗi: ' + (body.message || 'Không thể gửi bình luận'));
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Lỗi Fetch Comment:', error);
+                        showAlert('error', 'Lỗi kết nối máy chủ.');
+                    });
+            });
+        }
+
+    </script>
+</th:block>
+
+</body>
+</html>
