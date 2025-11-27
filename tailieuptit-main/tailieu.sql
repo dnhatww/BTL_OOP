@@ -213,7 +213,25 @@ INSERT INTO `roles` (`name`) VALUES ('ROLE_ADMIN'), ('ROLE_USER');
 -- -----------------------------------------------------
 INSERT INTO `categories` (`name`, `slug`)
 VALUES
-    ('Toán', 'toan'),
-    ('Văn', 'van'),
-    ('Anh', 'anh'),
-    ('Công Nghệ', 'cong-nghe');
+   ('Triết học Mác-Lênin', 'triethocmaclenin'),
+   ('Tin học cơ sở 1', 'tinhoccoso1'),
+   ('Tin học cơ sở 2', 'tinhoccoso2'),
+   ('Kinh tế chính trị Mác-Lênin', 'kinhtechintrimaclenin'),
+   ('Pháp luật đại cương', 'phapluatdaicuong'),
+   ('Vật lý ứng dụng', 'vatlyungdung'),
+   ('Kỹ thuật số', 'kythuatsso'),
+   ('Chủ nghĩa xã hội khoa học', 'chunghiaxahoikhoahoc'),
+   ('Ngôn ngữ lập trình C++', 'ngonngulaptrinhcplus'),
+   ('Toán rời rạc 1', 'toanroirac1'),
+   ('Xử lý tín hiệu số', 'xulutin hieu so'),
+   ('Xác suất thống kê', 'xacsuatthongke'),
+   ('Tư tưởng Hồ Chí Minh', 'tutuonghochiminh'),
+   ('Kiến trúc máy tính', 'kientrucmaytinh'),
+   ('Toán rời rạc 2', 'toanroirac2'),
+   ('Cấu trúc dữ liệu và giải thuật', 'cautrucdulieugiaithuat'),
+   ('Lý thuyết thông tin', 'lythuyetthongtin'),
+   ('Lịch sử Đảng cộng sản VN', 'lichsudangcsvn'),
+   ('Cơ sở dữ liệu', 'cosodulieu'),
+   ('Hệ điều hành', 'hedieuhanh'),
+   ('Lập trình hướng đối tượng', 'laptrinhhuongdoituong'),
+   ('Lập trình Python', 'laptrinhpython');
