@@ -54,10 +54,6 @@ public class Document {
     @Column(name = "comments_count", nullable = false)
     private int commentsCount = 0;
 
-    // Dùng BigDecimal cho 'average_rating' (precision=3, scale=2 -> 0.00 đến 9.99)
-    @Column(name = "average_rating", nullable = false, precision = 3, scale = 2)
-    private BigDecimal averageRating = BigDecimal.ZERO;
-
     // --- Các Quan hệ (Relationships) ---
 
     // N-1 với User
@@ -70,20 +66,7 @@ public class Document {
     @JoinColumn(name = "category_id")
     private Category category;
 
-    // N-N với Tag
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "document_tags",
-            joinColumns = @JoinColumn(name = "doc_id"),
-            inverseJoinColumns = @JoinColumn(name = "tag_id")
-    )
-    private Set<Tag> tags = new HashSet<>();
-
     // 1-N với Comment (Cascade khi xóa Document)
     @OneToMany(mappedBy = "document", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private Set<Comment> comments = new HashSet<>();
-
-    // 1-N với Rating (Cascade khi xóa Document)
-    @OneToMany(mappedBy = "document", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    private Set<Rating> ratings = new HashSet<>();
 }

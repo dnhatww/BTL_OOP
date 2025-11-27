@@ -15,15 +15,6 @@ public interface InteractionService {
     void addComment(Long docId, String content, String username);
 
     /**
-     * [USER] Thêm hoặc cập nhật đánh giá (rating) cho tài liệu.
-     * (Hệ thống sẽ tự tính lại average_rating của Document)
-     * @param docId ID tài liệu
-     * @param score Điểm (1-5)
-     * @param username Tên người dùng đánh giá
-     */
-    void addRating(Long docId, short score, String username);
-
-    /**
      * [USER/ADMIN] Xóa một bình luận.
      * @param commentId ID bình luận
      * @param username Tên người dùng yêu cầu xóa (để kiểm tra quyền sở hữu)

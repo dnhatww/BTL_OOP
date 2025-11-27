@@ -2,7 +2,6 @@ package com.tailieuptit.demo.controller;
 
 import com.tailieuptit.demo.dto.CommentRequestDTO;
 import com.tailieuptit.demo.dto.MessageResponse;
-import com.tailieuptit.demo.dto.RatingRequestDTO;
 import com.tailieuptit.demo.dto.UserResponse;
 import com.tailieuptit.demo.service.DocumentService;
 import com.tailieuptit.demo.service.InteractionService;
@@ -10,7 +9,6 @@ import com.tailieuptit.demo.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -114,23 +112,6 @@ public class UserActionController {
         // GỌI CHÍNH XÁC: interactionService.addComment()
         interactionService.addComment(id, commentRequest.getContent(), userDetails.getUsername());
         return ResponseEntity.status(HttpStatus.CREATED).body(new MessageResponse("Bình luận thành công!"));
-    }
-
-    /**
-     * [LIÊN KẾT VỚI INTERACTIONSERVICE]
-     * POST /api/documents/{id}/rate
-     * Gửi đánh giá (1-5 sao)
-     */
-    @PostMapping("/documents/{id}/rate")
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<MessageResponse> addRating(
-            @PathVariable Long id,
-            @Valid @RequestBody RatingRequestDTO ratingRequest, // Giả sử có DTO này
-            @AuthenticationPrincipal UserDetails userDetails) {
-
-        // GỌI CHÍNH XÁC: interactionService.addRating()
-        interactionService.addRating(id, ratingRequest.getScore(), userDetails.getUsername());
-        return ResponseEntity.ok(new MessageResponse("Đánh giá thành công!"));
     }
 
     /**

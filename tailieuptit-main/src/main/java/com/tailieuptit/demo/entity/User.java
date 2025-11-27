@@ -65,11 +65,6 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private Set<Comment> comments = new HashSet<>();
 
-    // 1 User có nhiều Rating (Cascade khi xóa User)
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    private Set<Rating> ratings = new HashSet<>();
-
-
     // --- Các phương thức của UserDetails (Spring Security) ---
 
     @Override

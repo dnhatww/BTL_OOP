@@ -7,7 +7,6 @@ import com.tailieuptit.demo.entity.*;
 import com.tailieuptit.demo.exception.ResourceNotFoundException;
 import com.tailieuptit.demo.repository.CategoryRepository;
 import com.tailieuptit.demo.repository.DocumentRepository;
-import com.tailieuptit.demo.repository.TagRepository;
 import com.tailieuptit.demo.repository.UserRepository;
 import com.tailieuptit.demo.service.DocumentService;
 import com.tailieuptit.demo.service.FileStorageService;
@@ -16,14 +15,11 @@ import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,7 +29,6 @@ public class DocumentServiceImpl implements DocumentService {
     private final DocumentRepository documentRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
-    private final TagRepository tagRepository;
     private final FileStorageService fileStorageService; // LIÊN KẾT Service -> Service
 
     /**
@@ -222,7 +217,6 @@ public class DocumentServiceImpl implements DocumentService {
         dto.setViewsCount(doc.getViewsCount());
         dto.setDownloadCount(doc.getDownloadCount());
         dto.setCommentsCount(doc.getCommentsCount());
-        dto.setAverageRating(doc.getAverageRating());
         dto.setCreatedAt(doc.getCreatedAt());
         dto.setStatus(doc.getStatus());
         dto.setMimeType(doc.getMimeType());
@@ -246,7 +240,6 @@ public class DocumentServiceImpl implements DocumentService {
         dto.setViewsCount(doc.getViewsCount());
         dto.setDownloadCount(doc.getDownloadCount());
         dto.setCommentsCount(doc.getCommentsCount());
-        dto.setAverageRating(doc.getAverageRating());
         dto.setCreatedAt(doc.getCreatedAt());
 
         if (doc.getUser() != null) {
@@ -260,11 +253,6 @@ public class DocumentServiceImpl implements DocumentService {
         dto.setDescription(doc.getDescription());
         dto.setMimeType(doc.getMimeType());
         dto.setStatus(doc.getStatus());
-
-        // Map Tags
-        dto.setTags(doc.getTags().stream()
-                .map(Tag::getName)
-                .collect(Collectors.toSet()));
 
         // Map Comments (Chỉ lấy comment gốc, replies sẽ được xử lý lồng nhau)
         dto.setComments(doc.getComments().stream()

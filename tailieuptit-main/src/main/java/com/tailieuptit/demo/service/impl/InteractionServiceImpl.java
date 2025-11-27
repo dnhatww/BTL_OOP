@@ -3,12 +3,10 @@ package com.tailieuptit.demo.service.impl;
 import com.tailieuptit.demo.dto.CommentDTO;
 import com.tailieuptit.demo.entity.Comment;
 import com.tailieuptit.demo.entity.Document;
-import com.tailieuptit.demo.entity.Rating;
 import com.tailieuptit.demo.entity.User;
 import com.tailieuptit.demo.exception.ResourceNotFoundException;
 import com.tailieuptit.demo.repository.CommentRepository;
 import com.tailieuptit.demo.repository.DocumentRepository;
-import com.tailieuptit.demo.repository.RatingRepository;
 import com.tailieuptit.demo.repository.UserRepository;
 import com.tailieuptit.demo.service.InteractionService;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +25,6 @@ import java.util.Optional;
 public class InteractionServiceImpl implements InteractionService {
 
     private final CommentRepository commentRepository;
-    private final RatingRepository ratingRepository;
     private final DocumentRepository documentRepository;
     private final UserRepository userRepository;
 
@@ -56,47 +53,6 @@ public class InteractionServiceImpl implements InteractionService {
         // Cập nhật cột 'comments_count' trong bảng Document
         document.setCommentsCount(document.getCommentsCount() + 1);
         documentRepository.save(document);
-    }
-
-    /**
-     * [LIÊN KẾT VỚI USER ACTION CONTROLLER]
-     */
-    @Override
-    @Transactional
-    public void addRating(Long docId, short score, String username) {
-        Document document = documentRepository.findById(docId)
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy tài liệu: " + docId));
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy user: " + username));
-
-        // Kiểm tra xem user đã rate chưa
-        // GỌI REPO: findByDocumentIdAndUserId
-        Optional<Rating> existingRating = ratingRepository.findByDocumentIdAndUserId(docId, user.getId());
-
-        if (existingRating.isPresent()) {
-            // Nếu đã rate -> Cập nhật
-            Rating rating = existingRating.get();
-            rating.setScore(score);
-            ratingRepository.save(rating);
-        } else {
-            // Nếu chưa rate -> Tạo mới
-            Rating newRating = new Rating();
-            newRating.setScore(score);
-            newRating.setDocument(document);
-            newRating.setUser(user);
-            ratingRepository.save(newRating);
-        }
-
-        // [LIÊN KẾT TỐI ƯU HÓA]
-        // Cập nhật 'average_rating' trong bảng Document
-        // GỌI REPO: getAverageRatingByDocumentId (Hàm @Query trong RatingRepository)
-        Double avgRating = ratingRepository.getAverageRatingByDocumentId(docId);
-        if (avgRating != null) {
-//            BigDecimal roundedAvg = BigDecimal.valueOf(avgRating).setScale(2, RoundingMode.HALF_UP);
-            BigDecimal roundedAvg = BigDecimal.valueOf(avgRating).setScale(2, BigDecimal.ROUND_HALF_UP);
-            document.setAverageRating(roundedAvg);
-            documentRepository.save(document);
-        }
     }
 
     /**

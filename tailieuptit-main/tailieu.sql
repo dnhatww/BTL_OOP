@@ -10,11 +10,9 @@ SET SQL_MODE = 'NO_AUTO_VALUE_ON_ZERO';
 -- Xóa bảng nếu tồn tại (theo thứ tự ngược lại)
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `document_tags`;
-DROP TABLE IF EXISTS `ratings`;
 DROP TABLE IF EXISTS `comments`;
 DROP TABLE IF EXISTS `documents`;
 DROP TABLE IF EXISTS `user_roles`;
-DROP TABLE IF EXISTS `tags`;
 DROP TABLE IF EXISTS `categories`;
 DROP TABLE IF EXISTS `users`;
 DROP TABLE IF EXISTS `roles`;
@@ -58,18 +56,6 @@ CREATE TABLE `categories` (
 ) ENGINE = InnoDB CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- -----------------------------------------------------
--- Bảng: tags
--- -----------------------------------------------------
-CREATE TABLE `tags` (
-                        `tag_id` BIGINT NOT NULL AUTO_INCREMENT,
-                        `name` VARCHAR(50) NOT NULL,
-                        `slug` VARCHAR(50) NOT NULL,
-                        PRIMARY KEY (`tag_id`),
-                        UNIQUE INDEX `name_UNIQUE` (`name` ASC),
-                        UNIQUE INDEX `slug_UNIQUE` (`slug` ASC)
-) ENGINE = InnoDB CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- -----------------------------------------------------
 -- Bảng: user_roles (Bảng nối User và Role)
 -- -----------------------------------------------------
 CREATE TABLE `user_roles` (
@@ -107,7 +93,6 @@ CREATE TABLE `documents` (
                              `views_count` INT NOT NULL DEFAULT 0,
                              `download_count` INT NOT NULL DEFAULT 0,
                              `comments_count` INT NOT NULL DEFAULT 0,
-                             `average_rating` DECIMAL(3, 2) NOT NULL DEFAULT 0.00,
 
                              PRIMARY KEY (`doc_id`),
                              INDEX `fk_documents_user_idx` (`user_id` ASC),
@@ -125,26 +110,6 @@ CREATE TABLE `documents` (
                                      REFERENCES `categories` (`category_id`)
                                      ON DELETE SET NULL -- Không xóa tài liệu nếu category bị xóa
                                      ON UPDATE CASCADE
-) ENGINE = InnoDB CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- -----------------------------------------------------
--- Bảng: document_tags (Bảng nối Tài liệu và Tag)
--- -----------------------------------------------------
-CREATE TABLE `document_tags` (
-                                 `doc_id` BIGINT NOT NULL,
-                                 `tag_id` BIGINT NOT NULL,
-                                 PRIMARY KEY (`doc_id`, `tag_id`),
-                                 INDEX `fk_document_tags_tag_idx` (`tag_id` ASC),
-                                 CONSTRAINT `fk_document_tags_document`
-                                     FOREIGN KEY (`doc_id`)
-                                         REFERENCES `documents` (`doc_id`)
-                                         ON DELETE CASCADE
-                                         ON UPDATE CASCADE,
-                                 CONSTRAINT `fk_document_tags_tag`
-                                     FOREIGN KEY (`tag_id`)
-                                         REFERENCES `tags` (`tag_id`)
-                                         ON DELETE CASCADE
-                                         ON UPDATE CASCADE
 ) ENGINE = InnoDB CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- -----------------------------------------------------
@@ -177,31 +142,6 @@ CREATE TABLE `comments` (
                                     ON DELETE CASCADE
                                     ON UPDATE CASCADE
 ) ENGINE = InnoDB CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- -----------------------------------------------------
--- Bảng: ratings
--- -----------------------------------------------------
-CREATE TABLE `ratings` (
-                           `rating_id` BIGINT NOT NULL AUTO_INCREMENT,
-                           `doc_id` BIGINT NOT NULL,
-                           `user_id` BIGINT NOT NULL,
-                           `score` TINYINT NOT NULL COMMENT 'Điểm đánh giá từ 1 đến 5',
-                           PRIMARY KEY (`rating_id`),
-    -- Ràng buộc: 1 user chỉ được đánh giá 1 tài liệu 1 lần
-                           UNIQUE INDEX `uq_user_doc_rating` (`user_id` ASC, `doc_id` ASC),
-                           INDEX `fk_ratings_document_idx` (`doc_id` ASC),
-                           CONSTRAINT `fk_ratings_document`
-                               FOREIGN KEY (`doc_id`)
-                                   REFERENCES `documents` (`doc_id`)
-                                   ON DELETE CASCADE
-                                   ON UPDATE CASCADE,
-                           CONSTRAINT `fk_ratings_user`
-                               FOREIGN KEY (`user_id`)
-                                   REFERENCES `users` (`user_id`)
-                                   ON DELETE CASCADE
-                                   ON UPDATE CASCADE
-) ENGINE = InnoDB CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
 
 -- -----------------------------------------------------
 -- Chèn dữ liệu bảng roles cơ bản
