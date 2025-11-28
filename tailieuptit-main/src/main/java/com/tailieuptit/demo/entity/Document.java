@@ -44,7 +44,6 @@ public class Document {
     @CreationTimestamp
     private Timestamp createdAt;
 
-    // --- Các cột tối ưu hóa (Denormalized) ---
     @Column(name = "views_count", nullable = false)
     private int viewsCount = 0;
 
