@@ -92,7 +92,6 @@ public class FileStorageServiceImpl implements FileStorageService {
             Path filePath = load(filename);
             Files.deleteIfExists(filePath);
         } catch (IOException ex) {
-            // Có thể log lỗi nhưng không cần ném exception
             System.err.println("Xóa file thất bại: " + filename);
         }
     }

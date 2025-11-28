@@ -9,11 +9,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 public interface UserService extends UserDetailsService {
 
     /**
-     * Ghi chú: UserDetailsService đã cung cấp:
-     * UserDetails loadUserByUsername(String username) throws UsernameNotFoundException;
-     */
-
-    /**
      * Xử lý logic đăng ký người dùng mới.
      * @param registerRequest DTO chứa thông tin đăng ký
      * @return UserResponse DTO của người dùng vừa tạo

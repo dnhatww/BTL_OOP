@@ -30,7 +30,6 @@ public interface FileStorageService {
     void deleteFile(String filename) throws Exception;
 
     /**
-     * (Tùy chọn) Lấy đường dẫn vật lý của file.
      * @param filename Tên file
      * @return Path
      */

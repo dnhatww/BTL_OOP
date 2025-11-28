@@ -29,7 +29,7 @@ public class DocumentServiceImpl implements DocumentService {
     private final DocumentRepository documentRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
-    private final FileStorageService fileStorageService; // LIÊN KẾT Service -> Service
+    private final FileStorageService fileStorageService;
 
     /**
      * [LIÊN KẾT VỚI USER ACTION CONTROLLER]
@@ -37,14 +37,11 @@ public class DocumentServiceImpl implements DocumentService {
     @Override
     @Transactional
     public void uploadDocument(MultipartFile file, String title, String description, Long categoryId, String username) throws Exception {
-        // GỌI REPO: findByUsername
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy user: " + username));
-        // GỌI REPO: findById (Category)
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy Category: " + categoryId));
 
-        // GỌI SERVICE: fileStorageService.storeFile
         String storedFilename = fileStorageService.storeFile(file);
 
         Document doc = new Document();
@@ -56,9 +53,6 @@ public class DocumentServiceImpl implements DocumentService {
         doc.setCategory(category);
         doc.setStatus(DocumentStatus.PENDING); // Chờ duyệt
 
-        // (Logic xử lý Tags nếu bạn truyền vào)
-
-        // GỌI REPO: save
         documentRepository.save(doc);
     }
 
@@ -68,16 +62,13 @@ public class DocumentServiceImpl implements DocumentService {
     @Override
     @Transactional
     public Resource downloadDocument(Long docId, String username) throws Exception {
-        // GỌI REPO: findByIdAndStatus (Chỉ cho download file đã duyệt)
         Document doc = documentRepository.findByIdAndStatus(docId, DocumentStatus.APPROVED)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy tài liệu hoặc chưa được duyệt: " + docId));
 
-        // [LIÊN KẾT TỐI ƯU HÓA]
         // Tăng đếm lượt download
         doc.setDownloadCount(doc.getDownloadCount() + 1);
         documentRepository.save(doc);
 
-        // GỌI SERVICE: fileStorageService.loadFileAsResource
         return fileStorageService.loadFileAsResource(doc.getFilePath());
     }
 
@@ -87,11 +78,9 @@ public class DocumentServiceImpl implements DocumentService {
     @Override
     @Transactional
     public DocumentDetailDTO getDocumentDetails(Long docId) throws Exception {
-        // GỌI REPO: findByIdAndStatus
         Document doc = documentRepository.findByIdAndStatus(docId, DocumentStatus.APPROVED)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy tài liệu: " + docId));
 
-        // [LIÊN KẾT TỐI ƯU HÓA]
         // Tăng đếm lượt xem
         doc.setViewsCount(doc.getViewsCount() + 1);
         documentRepository.save(doc);
@@ -105,7 +94,6 @@ public class DocumentServiceImpl implements DocumentService {
     @Override
     @Transactional(readOnly = true)
     public Page<DocumentSummaryDTO> getApprovedDocuments(Pageable pageable) {
-        // GỌI REPO: findByStatus
         Page<Document> docPage = documentRepository.findByStatus(DocumentStatus.APPROVED, pageable);
         return docPage.map(this::mapToSummaryDTO);
     }
@@ -126,16 +114,16 @@ public class DocumentServiceImpl implements DocumentService {
 
             spec = spec.and((root, query, cb) ->
                     cb.or(
-                            // 🔍 Tìm theo tiêu đề
+                            // Tìm theo tiêu đề
                             cb.like(cb.lower(root.get("title")), kw),
 
-                            // 🔍 Tìm theo mô tả
+                            // Tìm theo mô tả
                             cb.like(cb.lower(root.get("description")), kw),
 
-                            // 🔍 Tìm theo tên người đăng
+                            // Tìm theo tên người đăng
                             cb.like(cb.lower(root.join("user").get("fullName")), kw),
 
-                            // 🔍 Tìm theo tên danh mục
+                            // Tìm theo tên danh mục
                             cb.like(cb.lower(root.join("category").get("name")), kw)
                     )
             );
@@ -157,7 +145,6 @@ public class DocumentServiceImpl implements DocumentService {
     @Override
     @Transactional(readOnly = true)
     public Page<DocumentSummaryDTO> getPendingDocuments(Pageable pageable) {
-        // GỌI REPO: findByStatus
         Page<Document> docPage = documentRepository.findByStatus(DocumentStatus.PENDING, pageable);
         return docPage.map(this::mapToSummaryDTO);
     }
@@ -196,14 +183,12 @@ public class DocumentServiceImpl implements DocumentService {
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy tài liệu: " + docId));
 
         try {
-            // GỌI SERVICE: fileStorageService.deleteFile
             fileStorageService.deleteFile(doc.getFilePath());
         } catch (Exception e) {
             // Log lỗi (ví dụ: file không tồn tại) nhưng vẫn tiếp tục xóa DB
             System.err.println("Lỗi xóa file: " + doc.getFilePath() + ". Lỗi: " + e.getMessage());
         }
 
-        // GỌI REPO: delete
         documentRepository.delete(doc); // Cascade sẽ xóa comments, ratings, ...
     }
 
@@ -285,7 +270,6 @@ public class DocumentServiceImpl implements DocumentService {
     @Override
     @Transactional(readOnly = true)
     public Page<DocumentSummaryDTO> findDocumentsByUserId(Long userId, Pageable pageable) {
-        // GỌI REPO: findByUserId
         Page<Document> docPage = documentRepository.findByUserId(userId, pageable);
         // Chuyển sang DTO
         return docPage.map(this::mapToSummaryDTO); // Tận dụng lại hàm helper

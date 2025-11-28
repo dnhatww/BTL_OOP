@@ -46,11 +46,9 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public UserResponse registerUser(RegisterRequest registerRequest) throws Exception {
-        // GỌI REPO: existsByUsername
         if (userRepository.existsByUsername(registerRequest.getUsername())) {
             throw new Exception("Tên đăng nhập đã tồn tại");
         }
-        // GỌI REPO: existsByEmail
         if (userRepository.existsByEmail(registerRequest.getEmail())) {
             throw new Exception("Email đã tồn tại");
         }
@@ -62,12 +60,10 @@ public class UserServiceImpl implements UserService {
         user.setFullName(registerRequest.getFullName());
         user.setEnabled(true);
 
-        // GỌI REPO: findByName (để gán vai trò mặc định)
         Role userRole = roleRepository.findByName("ROLE_USER")
                 .orElseThrow(() -> new RuntimeException("Lỗi: Không tìm thấy ROLE_USER."));
         user.setRoles(Set.of(userRole));
 
-        // GỌI REPO: save
         User savedUser = userRepository.save(user);
 
         return mapToUserResponse(savedUser);
@@ -90,7 +86,6 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(readOnly = true)
     public Page<UserResponse> getAllUsers(Pageable pageable) {
-        // GỌI REPO: findAll
         Page<User> userPage = userRepository.findAll(pageable);
         return userPage.map(this::mapToUserResponse); // Chuyển Page<User> -> Page<UserResponse>
     }
@@ -101,12 +96,10 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void disableUser(Long userId) {
-        // GỌI REPO: findById
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy user: " + userId));
 
         user.setEnabled(false); // Vô hiệu hóa
-        // GỌI REPO: save
         userRepository.save(user);
     }
 

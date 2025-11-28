@@ -34,10 +34,8 @@ public class InteractionServiceImpl implements InteractionService {
     @Override
     @Transactional
     public void addComment(Long docId, String content, String username) {
-        // GỌI REPO: findById (Document)
         Document document = documentRepository.findById(docId)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy tài liệu: " + docId));
-        // GỌI REPO: findByUsername
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("Không tìm thấy user: " + username));
 
@@ -46,10 +44,8 @@ public class InteractionServiceImpl implements InteractionService {
         comment.setDocument(document);
         comment.setUser(user);
 
-        // GỌI REPO: save (Comment)
         commentRepository.save(comment);
 
-        // [LIÊN KẾT TỐI ƯU HÓA]
         // Cập nhật cột 'comments_count' trong bảng Document
         document.setCommentsCount(document.getCommentsCount() + 1);
         documentRepository.save(document);
@@ -74,10 +70,8 @@ public class InteractionServiceImpl implements InteractionService {
             throw new AccessDeniedException("Bạn không có quyền xóa bình luận này");
         }
 
-        // GỌI REPO: delete
         commentRepository.delete(comment);
 
-        // [LIÊN KẾT TỐI ƯU HÓA]
         // Cập nhật (giảm) 'comments_count'
         Document document = comment.getDocument();
         document.setCommentsCount(Math.max(0, document.getCommentsCount() - 1));
