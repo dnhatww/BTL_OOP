@@ -163,7 +163,6 @@
             // GỌI ĐÚNG API: POST /api/documents/upload
             fetch('/api/documents/upload', {
                 method: 'POST',
-                // Không cần 'Content-Type' khi dùng FormData, trình duyệt tự set
                 body: formData,
                 headers: {
                     // (Thêm CSRF token header nếu bạn bật)

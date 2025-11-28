@@ -115,7 +115,6 @@
 
 <th:block layout:fragment="scripts">
   <script>
-    // --- (Code xác nhận mật khẩu của bạn - Giữ nguyên) ---
     const passwordField = document.getElementById('password');
     const confirmPasswordField = document.getElementById('confirmPassword');
 
@@ -133,14 +132,13 @@
       }
     });
 
-    // --- CẢI TIẾN: Bắt sự kiện Submit Form bằng JavaScript ---
+    // --- Bắt sự kiện Submit Form bằng JavaScript ---
 
     const registerForm = document.getElementById('register-form');
     const alertSuccess = document.getElementById('alert-success');
     const alertError = document.getElementById('alert-error');
 
     registerForm.addEventListener('submit', function(event) {
-      // Ngăn form submit theo cách truyền thống
       event.preventDefault();
 
       // Ẩn thông báo cũ
@@ -160,7 +158,6 @@
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          // (Thêm CSRF token header nếu bạn bật)
         },
         body: JSON.stringify(data)
       })

@@ -1,4 +1,3 @@
-/* Toàn bộ CSS từ file index.html gốc của bạn */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     line-height: 1.6;
@@ -121,7 +120,6 @@ body {
     border: none;
 }
 
-/* CSS cho Footer (lấy từ file index gốc) */
 .footer {
     background: #333; /* Thay vì bg-dark */
     color: white;
@@ -296,11 +294,3 @@ body {
 
 /* PDF (Đỏ) */
 .header-pdf { background: linear-gradient(135deg, #D9534F, #B52B27) !important; }
-/* Word (Xanh dương) */
-.header-word { background: linear-gradient(135deg, #2B579A, #1E3C6C) !important; }
-/* Excel (Xanh lá) */
-.header-excel { background: linear-gradient(135deg, #217346, #185333) !important; }
-/* PowerPoint (Cam) */
-.header-ppt { background: linear-gradient(135deg, #D24726, #A7371E) !important; }
-/* Text/Khác (Xám) */
-.header-default { background: linear-gradient(135deg, #6c757d, #495057) !important; }
