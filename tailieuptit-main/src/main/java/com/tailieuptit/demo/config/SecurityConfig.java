@@ -23,7 +23,7 @@ public class SecurityConfig {
 
     /**
      * Bean này định nghĩa phương thức mã hóa mật khẩu.
-     * Chúng ta dùng BCrypt.
+     * Dùng BCrypt.
      */
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -31,7 +31,7 @@ public class SecurityConfig {
     }
 
     /**
-     * Bean này chỉ cho Spring Security biết cách lấy thông tin User
+     * Bean này chỉ cho Spring Security biết cách lấy thông tin Use
      * và cách kiểm tra mật khẩu.
      */
     @Bean
@@ -44,7 +44,7 @@ public class SecurityConfig {
     }
 
     /**
-     * Cần thiết cho một số quy trình xác thực (tùy chọn)
+     * Một số quy trình xác thực
      */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
@@ -52,7 +52,7 @@ public class SecurityConfig {
     }
 
     /**
-     * Đây là nơi cấu hình chính, định nghĩa các quy tắc bảo vệ.
+     * Cấu hình chính, định nghĩa các quy tắc bảo vệ.
      */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http,
@@ -63,8 +63,7 @@ public class SecurityConfig {
                         // --- ADMIN ---
                         .requestMatchers("/api/admin/**").hasRole("ADMIN") // Chỉ ADMIN
 
-                        // --- USER ACTIONS (Cần đăng nhập) ---
-                        // (Chúng ta sẽ dùng @PreAuthorize, nhưng có thể khóa cứng ở đây)
+                        // --- USER ACTIONS ---
                         .requestMatchers(
                                 "/api/documents/upload",
                                 "/api/documents/download/**",
@@ -75,10 +74,10 @@ public class SecurityConfig {
                                 "/document/upload"
                         ).authenticated() // Yêu cầu BẤT KỲ VAI TRÒ nào (USER hoặc ADMIN)
 
-                        // --- PUBLIC (Cho phép tất cả) ---
+                        // --- PUBLIC ---
                         .requestMatchers(
                                 "/",
-                                "/auth/**",               // Trang login/register (HTML)
+                                "/auth/**",               // Trang login/register
                                 "/api/auth/**",           // API đăng ký
                                 "/api/documents/**",      // API xem danh sách, chi tiết
                                 "/api/categories",
@@ -89,7 +88,6 @@ public class SecurityConfig {
                                 "/favicon.ico"
                         ).permitAll()
 
-                        // --- MỌI THỨ KHÁC ---
                         .anyRequest().authenticated() // Tất cả các yêu cầu còn lại phải đăng nhập
                 )
 
@@ -109,7 +107,7 @@ public class SecurityConfig {
                         .permitAll()
                 )
 
-                // Chỉ định Provider xác thực của chúng ta
+                // Chỉ định Provider xác thực
                 .authenticationProvider(authenticationProvider);
 
         return http.build();

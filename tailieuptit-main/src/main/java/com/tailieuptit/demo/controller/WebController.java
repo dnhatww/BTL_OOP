@@ -23,11 +23,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@Controller // <-- DÙNG @Controller (KHÔNG PHẢI @RestController)
+@Controller
 @RequiredArgsConstructor
 public class WebController {
 
-    // Inject tất cả Service cần thiết để lấy dữ liệu
     private final DocumentService documentService;
     private final UserService userService;
     private final InteractionService interactionService;
@@ -42,14 +41,14 @@ public class WebController {
     public String getHomePage(Model model,
                               @PageableDefault(size = 9, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
-        // 1. Gọi Service lấy dữ liệu
+        // Gọi Service lấy dữ liệu
         Page<DocumentSummaryDTO> documentPage = documentService.getApprovedDocuments(pageable);
 
-        // 2. Nhét dữ liệu vào Model cho Thymeleaf
+        //  dữ liệu vào Model cho Thymeleaf
         model.addAttribute("documents", documentPage); // Biến 'documents' cho index.html
         model.addAttribute("pageTitle", "Tài Liệu Mới Nhất");
 
-        return "index"; // 3. Trả về file "index.html"
+        return "index"; // Trả về file "index.html"
     }
 
     /**
@@ -69,7 +68,7 @@ public class WebController {
         model.addAttribute("pageTitle", "Kết quả tìm kiếm cho: '" + keyword + "'");
         model.addAttribute("searchQuery", keyword); // Giữ lại từ khóa trong ô search
 
-        return "index"; // Vẫn trả về "index.html"
+        return "index"; // Trả về "index.html"
     }
 
     /**
@@ -80,11 +79,8 @@ public class WebController {
     @GetMapping("/document/{id}")
     public String getDocumentDetailPage(@PathVariable Long id, Model model) {
         try {
-            // 1. Gọi Service
             DocumentDetailDTO doc = documentService.getDocumentDetails(id);
-            // 2. Nhét vào Model
-            model.addAttribute("document", doc); // Biến 'document' cho document-detail.html
-            // 3. Trả về file
+            model.addAttribute("document", doc);
             return "document-detail";
         } catch (Exception e) {
             model.addAttribute("error", "Không tìm thấy tài liệu.");
@@ -114,21 +110,20 @@ public class WebController {
      * [TRANG HỒ SƠ CÁ NHÂN]
      * Xử lý: GET /profile
      * Trả về: templates/profile.html
-     * (Đây là hàm đã fix lỗi 404 của bạn)
      */
     @GetMapping("/profile")
     @PreAuthorize("isAuthenticated()") // Yêu cầu đăng nhập
     public String getProfilePage(Model model, @AuthenticationPrincipal UserDetails userDetails) {
 
-        // 1. Lấy thông tin User (DTO)
+        // Lấy thông tin User (DTO)
         UserResponse user = userService.findByUsername(userDetails.getUsername());
         model.addAttribute("user", user);
 
-        // 2. Lấy 5 tài liệu mới nhất của User
+        // Lấy 5 tài liệu mới nhất của User
         Pageable docPageable = PageRequest.of(0, 5, Sort.by("createdAt").descending());
         model.addAttribute("userDocuments", documentService.findDocumentsByUserId(user.getId(), docPageable));
 
-        // 3. (Tương tự) Lấy 5 bình luận mới nhất
+        // Lấy 5 bình luận mới nhất
         Pageable commentPageable = PageRequest.of(0, 5, Sort.by("createdAt").descending());
         model.addAttribute("userComments", interactionService.findCommentsByUserId(user.getId(), commentPageable));
 

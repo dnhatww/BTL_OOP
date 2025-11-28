@@ -18,12 +18,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("/admin") // <-- 1. Đặt tiền tố chung là /admin
-@PreAuthorize("hasRole('ADMIN')") // <-- 2. Khóa toàn bộ Class này, chỉ cho Admin
+@RequestMapping("/admin") // -- Tiền tố chung là /admin
+@PreAuthorize("hasRole('ADMIN')") // -- Khóa toàn bộ Class này, chỉ cho Admin
 @RequiredArgsConstructor
 public class AdminWebController {
 
-    // 3. Inject các Service/Repository chỉ Admin mới cần
     private final UserService userService;
     private final DocumentService documentService;
     private final UserRepository userRepository;

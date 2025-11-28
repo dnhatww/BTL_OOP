@@ -4,7 +4,6 @@ import com.tailieuptit.demo.dto.DocumentDetailDTO;
 import com.tailieuptit.demo.dto.DocumentSummaryDTO;
 import com.tailieuptit.demo.exception.ResourceNotFoundException;
 import com.tailieuptit.demo.service.DocumentService;
-// import com.tailieuptit.demo.service.CategoryService; // (Bạn sẽ cần Service này)
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

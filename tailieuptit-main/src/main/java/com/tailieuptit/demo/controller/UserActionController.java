@@ -27,20 +27,17 @@ public class UserActionController {
     private final UserService userService;
 
     /**
-     * [LIÊN KẾT VỚI USERSERVICE]
      * GET /api/users/me
      * Lấy thông tin của user đang đăng nhập
      */
     @GetMapping("/users/me")
     @PreAuthorize("isAuthenticated()") // Yêu cầu đã đăng nhập (USER hoặc ADMIN)
     public ResponseEntity<UserResponse> getCurrentUser(@AuthenticationPrincipal UserDetails userDetails) {
-        // GỌI CHÍNH XÁC: userService.findByUsername()
         UserResponse userResponse = userService.findByUsername(userDetails.getUsername());
         return ResponseEntity.ok(userResponse);
     }
 
     /**
-     * [LIÊN KẾT VỚI DOCUMENTSERVICE]
      * POST /api/documents/upload
      * Upload tài liệu
      */
@@ -54,7 +51,6 @@ public class UserActionController {
             @AuthenticationPrincipal UserDetails userDetails) {
 
         try {
-            // GỌI CHÍNH XÁC: documentService.uploadDocument()
             documentService.uploadDocument(
                     file,
                     title,
@@ -70,7 +66,6 @@ public class UserActionController {
     }
 
     /**
-     * [LIÊN KẾT VỚI DOCUMENTSERVICE]
      * GET /api/documents/download/{id}
      * Tải file tài liệu
      */
@@ -85,7 +80,7 @@ public class UserActionController {
         // Lấy tên file thật đang lưu trên ổ
         String filename = resource.getFilename();
 
-        // Encode UTF-8 để tránh lỗi ký tự lạ (FIX CHÍNH)
+        // Encode UTF-8 để tránh lỗi ký tự lạ
         String encodedFilename = java.net.URLEncoder
                 .encode(filename, "UTF-8")
                 .replaceAll("\\+", "%20");
@@ -98,7 +93,6 @@ public class UserActionController {
     }
 
     /**
-     * [LIÊN KẾT VỚI INTERACTIONSERVICE]
      * POST /api/documents/{id}/comment
      * Gửi bình luận
      */
@@ -106,16 +100,14 @@ public class UserActionController {
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<MessageResponse> addComment(
             @PathVariable Long id,
-            @Valid @RequestBody CommentRequestDTO commentRequest, // Giả sử có DTO này
+            @Valid @RequestBody CommentRequestDTO commentRequest,
             @AuthenticationPrincipal UserDetails userDetails) {
 
-        // GỌI CHÍNH XÁC: interactionService.addComment()
         interactionService.addComment(id, commentRequest.getContent(), userDetails.getUsername());
         return ResponseEntity.status(HttpStatus.CREATED).body(new MessageResponse("Bình luận thành công!"));
     }
 
     /**
-     * [LIÊN KẾT VỚI INTERACTIONSERVICE]
      * DELETE /api/comments/{id}
      * Xóa 1 bình luận (chỉ chủ sở hữu hoặc Admin)
      */
@@ -125,11 +117,9 @@ public class UserActionController {
             @PathVariable Long id,
             @AuthenticationPrincipal UserDetails userDetails) {
         try {
-            // GỌI CHÍNH XÁC: interactionService.deleteComment()
             interactionService.deleteComment(id, userDetails.getUsername());
             return ResponseEntity.ok(new MessageResponse("Xóa bình luận thành công!"));
         } catch (Exception e) {
-            // Bắt lỗi AccessDeniedException hoặc ResourceNotFoundException
             return new ResponseEntity<>(new MessageResponse(e.getMessage()), HttpStatus.FORBIDDEN);
         }
     }

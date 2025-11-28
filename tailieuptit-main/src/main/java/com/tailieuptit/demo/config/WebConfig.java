@@ -14,7 +14,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/api/**")    // Chỉ áp dụng CORS cho các API
-                .allowedOrigins("*")                // Cho phép tất cả các domain (có thể sửa lại "http://localhost:8080)
+                .allowedOrigins("*")                // Cho phép tất cả các domain
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .maxAge(3600);
