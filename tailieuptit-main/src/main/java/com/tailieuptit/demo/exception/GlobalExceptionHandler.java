@@ -80,12 +80,10 @@ public class GlobalExceptionHandler {
 
     /**
      * Bắt tất cả các lỗi 500 (Lỗi Máy chủ Chung)
-     * Đây là "cái phễu" cuối cùng cho mọi lỗi không xác định.
      */
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseEntity<MessageResponse> handleGlobalException(Exception ex, WebRequest request) {
-        // Log lỗi này ra console (rất quan trọng)
         ex.printStackTrace();
 
         MessageResponse errorResponse = new MessageResponse("Đã xảy ra lỗi không mong muốn: " + ex.getMessage());
